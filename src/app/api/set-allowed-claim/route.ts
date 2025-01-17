@@ -1,7 +1,11 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 import { authAdmin } from "@/firebase/admin";
 
-export async function POST(request: NextRequest) {
+interface RequestBody {
+  email: string
+}
+
+export async function POST(request: Request) {
   try {
     const authToken = request.headers.get("Authorization")?.split(" ")[1];
 
@@ -15,11 +19,11 @@ export async function POST(request: NextRequest) {
     }
 
     try {
-      const { email } = await request.json();
-      const user = await authAdmin.getUserByEmail(email);
+      const body: RequestBody  = await request.json();
+      const user = await authAdmin.getUserByEmail(body.email);
       await authAdmin.setCustomUserClaims(user.uid, { allowed: true });
   
-      return NextResponse.json({ message: `Access granted to ${email}` }, { status: 200 });
+      return NextResponse.json({ message: `Access granted to ${body.email}` }, { status: 200 });
     } catch {
 
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
