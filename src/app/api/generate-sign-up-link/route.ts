@@ -1,7 +1,7 @@
 import { authAdmin } from "@/firebase/admin";
 
 // POST handler for the API route
-const POST = async (req: Request) => {
+export async function POST(req: Request) {
   try {
     const token = req.headers.get("authorization")?.split(" ")[1];
     if (!token) {
