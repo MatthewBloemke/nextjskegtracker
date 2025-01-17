@@ -1,4 +1,4 @@
-import { authAdmin } from "@/firebase/admin";
+// import { authAdmin } from "@/firebase/admin";
 
 // interface RequestBody {
 //   email: string
@@ -12,15 +12,15 @@ export async function POST(request: Request) {
       return new Response("Unauthorized" , { status: 401 });
     }
 
-    const decodedToken = await authAdmin.verifyIdToken(authToken);
-    if (!decodedToken.admin) {
-      return new Response("Forbidden - Admin access only" , { status: 403 });
-    }
+    // const decodedToken = await authAdmin.verifyIdToken(authToken);
+    // if (!decodedToken.admin) {
+    //   return new Response("Forbidden - Admin access only" , { status: 403 });
+    // }
 
     try {
       const body = {email: 'test'};
-      const user = await authAdmin.getUserByEmail(body.email);
-      await authAdmin.setCustomUserClaims(user.uid, { allowed: true });
+      // const user = await authAdmin.getUserByEmail(body.email);
+      // await authAdmin.setCustomUserClaims(user.uid, { allowed: true });
   
       return new Response(`Access granted to ${body.email}` , { status: 200 });
     } catch {
