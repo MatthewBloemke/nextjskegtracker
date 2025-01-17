@@ -1,13 +1,28 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { authAdmin } from "@/firebase/admin";
 
 // POST handler for the API route
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
-    const token = req.headers.get("authorization")?.split(" ")[1];
-    if (!token) {
+    // Ensure the request has a valid content type
+    const contentType = req.headers.get("content-type");
+    if (!contentType || !contentType.includes("application/json")) {
+      return NextResponse.json({ error: "Invalid content type" }, { status: 400 });
+    }
+
+    // Parse JSON body correctly
+    const body = await req.json();
+    
+    if (!body || !body.email) {
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
+    }
+
+    // Get Authorization token from headers
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader || !authHeader.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+    const token = authHeader.split(" ")[1];
 
     // Verify ID token and check if the user has an 'admin' claim
     const decodedToken = await authAdmin.verifyIdToken(token);
@@ -15,13 +30,8 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Forbidden - Admins only" }, { status: 403 });
     }
 
-    const body = await req.json();
-    const { email } = body;
-    if (!email) {
-      return NextResponse.json({ error: "Email is required" }, { status: 400 });
-    }
-
-    const signUpLink = await authAdmin.generateSignInWithEmailLink(email, {
+    // Generate the sign-up link
+    const signUpLink = await authAdmin.generateSignInWithEmailLink(body.email, {
       url: "http://localhost:3000/signin",
       handleCodeInApp: true,
     });
