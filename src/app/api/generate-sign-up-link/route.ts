@@ -1,26 +1,24 @@
-import { NextApiRequest, NextApiResponse } from "next";
+import { NextResponse } from "next/server";
 import { authAdmin } from "@/firebase/admin";
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
-  }
-
+// POST handler for the API route
+export async function POST(req: Request) {
   try {
-    const token = req.headers.authorization?.split(" ")[1];
+    const token = req.headers.get("authorization")?.split(" ")[1];
     if (!token) {
-      return res.status(401).json({ error: "Unauthorized" });
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Verify ID token and check if the user has an 'admin' claim
     const decodedToken = await authAdmin.verifyIdToken(token);
     if (!decodedToken.admin) {
-      return res.status(403).json({ error: "Forbidden - Admins only" });
+      return NextResponse.json({ error: "Forbidden - Admins only" }, { status: 403 });
     }
 
-    const { email } = req.body;
+    const body = await req.json();
+    const { email } = body;
     if (!email) {
-      return res.status(400).json({ error: "Email is required" });
+      return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
 
     const signUpLink = await authAdmin.generateSignInWithEmailLink(email, {
@@ -28,9 +26,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       handleCodeInApp: true,
     });
 
-    res.status(200).json({ link: signUpLink });
+    return NextResponse.json({ link: signUpLink }, { status: 200 });
   } catch (error) {
     console.error("Error generating sign-up link:", error);
-    res.status(500).json({ error: "Failed to generate sign-up link", details: error instanceof Error ? error.message : String(error) });
+    return NextResponse.json(
+      { error: "Failed to generate sign-up link", details: error instanceof Error ? error.message : String(error) },
+      { status: 500 }
+    );
   }
 }
