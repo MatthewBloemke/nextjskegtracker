@@ -1,8 +1,8 @@
 import { authAdmin } from "@/firebase/admin";
 
-interface RequestBody {
-  email: string
-}
+// interface RequestBody {
+//   email: string
+// }
 
 export async function POST(request: Request) {
   try {
@@ -18,7 +18,7 @@ export async function POST(request: Request) {
     }
 
     try {
-      const body: RequestBody  = await request.json();
+      const body = {email: 'test'};
       const user = await authAdmin.getUserByEmail(body.email);
       await authAdmin.setCustomUserClaims(user.uid, { allowed: true });
   
