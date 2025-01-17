@@ -1,11 +1,14 @@
-import { NextResponse } from "next/server";
+import { NextResponse } from "next/server"
 import { authAdmin } from "@/firebase/admin";
+import { NextApiRequest } from "next";
 
-export async function POST(request: Request) {
+export async function POST(request: NextApiRequest) {
   try {
-    const authToken = request.headers.get("Authorization")?.split(" ")[1];
+    const authHeader = request.headers.authorization;
+    const authToken = authHeader?.split(" ")[1];
+  
     if (!authToken) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+      return NextResponse.json({ error: "Unauthorized" }, {status: 401});
     }
 
     const decodedToken = await authAdmin.verifyIdToken(authToken);
@@ -13,7 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: "Forbidden - Admin access only" }, { status: 403 });
     }
 
-    const { email } = await request.json();
+    const { email } = await request.body;
     if (!email) {
       return NextResponse.json({ error: "Email is required" }, { status: 400 });
     }
