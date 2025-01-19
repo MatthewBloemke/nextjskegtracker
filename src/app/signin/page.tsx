@@ -54,8 +54,13 @@ export default function SignInPage() {
           'error'
         );
       }
-    } catch {
-      showSnackbar('An unexpected error occurred. Please try again.', 'error');
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        showSnackbar(error.message, 'error');
+      } else {
+        console.error(error);
+        showSnackbar('An unexpected error occurred', 'error');
+      }
     }
   };
 
