@@ -15,14 +15,12 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      // Sign in with Google
       const result = await signInWithPopup(auth, googleProvider);
       const user = result.user;
 
-      // Attempt to get custom claims
       let tokenResult;
       try {
-        tokenResult = await getIdTokenResult(user, true); // Force token refresh
+        tokenResult = await getIdTokenResult(user, true);
       } catch (claimError) {
         console.error('Error fetching custom claims:', claimError);
         showSnackbar(
@@ -33,19 +31,30 @@ export default function SignInPage() {
         return;
       }
 
-      const hasCustomClaims = Object.keys(tokenResult.claims).length > 0;
-      const isAllowed = tokenResult.claims.allowed === true;
+      const customClaims = ['admin', 'allowed', 'distributor'];
+      let hasCustomClaims = customClaims.some(
+        (claim) => claim in tokenResult.claims
+      );
 
+      console.log(tokenResult.claims);
+      let isAllowed = tokenResult.claims.allowed === true;
+      console.log(hasCustomClaims);
       if (!hasCustomClaims) {
-        showSnackbar(
-          'Your account needs approval from an admin. Please wait for access.',
-          'error'
+        await fetch('/api/update-custom-claims', {
+          method: 'POST',
+          body: JSON.stringify({ email: user.email }),
+          headers: { 'Content-Type': 'application/json' },
+        });
+
+        await user.getIdToken(true);
+        const updatedTokenResult = await user.getIdTokenResult();
+        hasCustomClaims = customClaims.some(
+          (claim) => claim in updatedTokenResult.claims
         );
-        await auth.signOut();
-        return;
+        isAllowed = updatedTokenResult.claims.allowed === true;
       }
 
-      if (isAllowed) {
+      if (isAllowed && hasCustomClaims) {
         router.push('/');
       } else {
         await auth.signOut();

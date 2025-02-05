@@ -276,27 +276,29 @@ const Navbar = () => {
         </ListItem>
         {isAdmin && (
           <ListItem disablePadding sx={{ display: 'block' }}>
-            <ListItemButton
-              sx={{
-                justifyContent: 'flex-start',
-                display: 'flex',
-                alignItems: 'center',
-                paddingLeft: '5px',
-                paddingRight: 0,
-              }}
-            >
-              <ListItemIcon
+            <Link href="/admin/grant-access">
+              <ListItemButton
                 sx={{
-                  minWidth: '48px',
-                  justifyContent: 'center',
+                  justifyContent: 'flex-start',
                   display: 'flex',
-                  padding: '8px',
+                  alignItems: 'center',
+                  paddingLeft: '5px',
+                  paddingRight: 0,
                 }}
               >
-                <FaUserShield className="text-3xl text-white" />
-              </ListItemIcon>
-              <ListItemText primary="Admin" sx={{ opacity: open ? 1 : 0 }} />
-            </ListItemButton>
+                <ListItemIcon
+                  sx={{
+                    minWidth: '48px',
+                    justifyContent: 'center',
+                    display: 'flex',
+                    padding: '8px',
+                  }}
+                >
+                  <FaUserShield className="text-3xl text-white" />
+                </ListItemIcon>
+                <ListItemText primary="Admin" sx={{ opacity: open ? 1 : 0 }} />
+              </ListItemButton>
+            </Link>
           </ListItem>
         )}
       </List>

@@ -70,7 +70,7 @@ export const SnackbarProvider = ({ children }: { children: ReactNode }) => {
 
     const timer = setInterval(() => {
       const elapsedTime = Date.now() - startTime + 400;
-      console.log(elapsedTime);
+
       const newProgress = Math.max(100 - (elapsedTime / duration) * 100, 0);
       setProgress(newProgress);
 
